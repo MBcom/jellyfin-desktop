@@ -205,23 +205,6 @@
         //});
     }
 
-    function sleepSystem() {
-
-        var sleepMode = require('sleep-mode');
-        sleepMode(function (err, stderr, stdout) {
-        });
-    }
-
-    function restartSystem() {
-    }
-
-    function shutdownSystem() {
-
-        var powerOff = require('power-off');
-        powerOff(function (err, stderr, stdout) {
-        });
-    }
-
     function setMainWindowResizable(resizable) {
 
         try {
@@ -268,25 +251,15 @@
                     closeWindow(mainWindow);
                     break;
                 case 'sleep':
-                    sleepSystem();
-                    break;
                 case 'shutdown':
-                    shutdownSystem();
-                    break;
                 case 'restart':
-                    restartSystem();
                     break;
                 case 'openurl':
                     electron.shell.openExternal(url.substring(url.indexOf('url=') + 4));
                     break;
                 case 'shellstart':
-
-                    var options = require('querystring').parse(parts[1]);
-                    startProcess(options, callback);
                     return;
                 case 'shellclose':
-
-                    closeProcess(require('querystring').parse(parts[1]).id, callback);
                     return;
                 case 'video-on':
                     isTransparencyRequired = true;
@@ -326,39 +299,7 @@
 
     var processes = {};
 
-    function startProcess(options, callback) {
 
-        var pid;
-        var args = (options.arguments || '').split('|||');
-
-        try {
-            var process = require('child_process').execFile(options.path, args, {}, function (error, stdout, stderr) {
-
-                if (error) {
-                    console.log('Process closed with error: ' + error);
-                }
-                processes[pid] = null;
-                var script = 'onChildProcessClosed("' + pid + '", ' + (error ? 'true' : 'false') + ');';
-
-                sendJavascript(script);
-            });
-
-            pid = process.pid.toString();
-            processes[pid] = process;
-            callback(pid);
-        } catch (err) {
-            alert('Error launching process: ' + err);
-        }
-    }
-
-    function closeProcess(id, callback) {
-
-        var process = processes[id];
-        if (process) {
-            process.kill();
-        }
-        callback("");
-    }
 
     function registerFileSystem() {
 
@@ -433,12 +374,6 @@
             switch (url) {
 
                 case 'wakeserver':
-                    var mac = request.url.split('=')[1].split('&')[0];
-                    wakeonlan
-                        .wake(mac, request.url.split("=")[2])
-                        .then((res) => callback(null, res))
-                        .catch((error) => callback(error));
-                    break;
                 default:
                     callback("");
                     break;
